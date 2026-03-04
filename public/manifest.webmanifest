@@ -1,0 +1,16 @@
+{
+  "name": "xltras audio messaging",
+  "short_name": "xltras",
+  "description": "Clocked BFSK audio messaging with ultra and audible profiles.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6efe5",
+  "theme_color": "#203e4e",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
