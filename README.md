@@ -1,49 +1,53 @@
 # xltras
 
-Browser-based acoustic messaging prototype using Web Audio + WebRTC microphone capture.
+`xltras` is a browser-based infra/ultrasonic messaging app that sends text as audio tones and decodes it on another device.
 
-## What it does
+## Features
 
-- Encodes a text frame into BFSK audio symbols.
-- Sends frame as: `preamble + SYNC1 + SYNC2 + LEN + PAYLOAD + CRC8`.
-- Decodes incoming audio with a clocked receiver state machine.
-- Supports two profiles:
-  - `Near-ultrasonic` (primary, two-device use)
-  - `Audible fallback` (debug/reliability profile)
+- Clocked BFSK protocol with frame format:
+  - `PREAMBLE + SYNC1 + SYNC2 + LEN + PAYLOAD + CRC8`
+- Two audio profiles:
+  - `Near-ultrasonic` (primary, two-device mode)
+  - `Audible fallback` (debug/reliability mode)
+- Profile-aware calibration with saved settings in `localStorage`
+- Receiver state machine with pilot lock, sync scan, length guard, CRC validation
+- TX and RX progress bars
+- Realtime RX provisional preview during payload read
+- Debug console with live RF metrics and event log
 
-## Key reliability features
+## Requirements
 
-- Pilot lock before decode start.
-- Clocked symbol-center sampling (not blind interval bit slicing).
-- Confidence-gated bit decisions with erasure handling.
-- Repetition coding for bit robustness.
-- CRC8 frame validation.
-- Profile-aware calibration and threshold tuning.
-- Calibration persistence in `localStorage`.
+- Modern browser with Web Audio + `getUserMedia`
+- Secure context for microphone access:
+  - `https://...` or `localhost`
+  - Android Chrome may block mic APIs on `http://192.168.x.x`
 
-## Android / microphone requirements
+## Run locally
 
-Microphone features (`Run calibration`, `Start listening`) require a **secure context**.
+```bash
+npm install
+npm run dev
+```
 
-- Works on `https://...` origins.
-- Works on `localhost` secure-context environments.
-- Often fails on Android Chrome over `http://192.168.x.x` with missing `navigator.mediaDevices`.
+## Build for production
 
-If mic APIs are unavailable, the app shows an explicit error and disables mic actions.
+```bash
+npm run lint
+npm run build
+npm run preview
+```
 
-## Scripts
+## Basic usage
 
-- `npm run dev` - start Vite dev server
-- `npm run build` - production build
-- `npm run preview` - preview production build
-- `npm run lint` - run ESLint
-
-## Test flow
-
-1. Open the app in a secure context.
+1. Open app on a secure origin.
 2. Select profile (`Near-ultrasonic` or `Audible fallback`).
 3. Run calibration.
-4. Start receiver.
-5. Send message (or use `Loopback test`).
+4. Start receiver on target device.
+5. Send a message from source device.
 
-If repeated timeouts occur in `Near-ultrasonic`, switch to `Audible fallback`.
+If RX repeatedly times out in ultrasonic mode, switch to `Audible fallback`.
+
+## Notes
+
+- `MAX_PAYLOAD` is capped in code (`src/App.jsx`).
+- Realtime preview is provisional until final CRC passes.
